@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -20,24 +21,34 @@ public class VentaController {
         this.ventaService = ventaService;
     }
 
-    // --- ¡NUEVO! Creamos este "molde" para atrapar el JSON de Flutter ---
-    public static class VentaRequestDTO {
-        private List<DetalleVenta> detalles;
+    // --- ¡NUEVO! Clase para recibir cada pago individual (Ej: "EFECTIVO" -> 5000) ---
+    public static class PagoRequestDTO {
         private String metodoPago;
+        private BigDecimal monto;
 
-        // Getters y Setters necesarios para que Spring Boot pueda leer el JSON
-        public List<DetalleVenta> getDetalles() { return detalles; }
-        public void setDetalles(List<DetalleVenta> detalles) { this.detalles = detalles; }
         public String getMetodoPago() { return metodoPago; }
         public void setMetodoPago(String metodoPago) { this.metodoPago = metodoPago; }
+        public BigDecimal getMonto() { return monto; }
+        public void setMonto(BigDecimal monto) { this.monto = monto; }
+    }
+
+    // --- ACTUALIZADO: Ahora recibe una lista de pagos en lugar de un solo String ---
+    public static class VentaRequestDTO {
+        private List<DetalleVenta> detalles;
+        private List<PagoRequestDTO> pagos;
+
+        public List<DetalleVenta> getDetalles() { return detalles; }
+        public void setDetalles(List<DetalleVenta> detalles) { this.detalles = detalles; }
+        public List<PagoRequestDTO> getPagos() { return pagos; }
+        public void setPagos(List<PagoRequestDTO> pagos) { this.pagos = pagos; }
     }
 
     // 1. POST: http://localhost:8080/api/ventas (Para cobrar una venta nueva)
     @PostMapping
     public ResponseEntity<?> registrarVenta(@RequestBody VentaRequestDTO request) {
         try {
-            // ¡OJO AQUÍ! Ahora le pasamos ambas cosas al Service: los detalles y el método
-            Venta nuevaVenta = ventaService.procesarVenta(request.getDetalles(), request.getMetodoPago());
+            // Pasamos los detalles y la LISTA DE PAGOS al Service
+            Venta nuevaVenta = ventaService.procesarVenta(request.getDetalles(), request.getPagos());
             return new ResponseEntity<>(nuevaVenta, HttpStatus.CREATED);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

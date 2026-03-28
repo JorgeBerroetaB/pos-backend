@@ -20,9 +20,10 @@ public class Venta {
     @Column(name = "total", nullable = false)
     private BigDecimal total;
 
-    @Column(name = "metodo_pago", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private MetodoPago metodoPago;
+    // 🔥 CORREGIDO: Eliminamos el @Column que causaba error.
+    // Ahora es simplemente la relación a la nueva tabla PagoVenta.
+    @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL)
+    private List<PagoVenta> pagos = new ArrayList<>();
 
     @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL)
     private List<DetalleVenta> detalles = new ArrayList<>();
@@ -31,10 +32,9 @@ public class Venta {
         this.fecha = LocalDateTime.now();
     }
 
-    public Venta(BigDecimal total, MetodoPago metodoPago) {
+    public Venta(BigDecimal total) {
         this.fecha = LocalDateTime.now();
         this.total = total;
-        this.metodoPago = metodoPago;
     }
 
     // Getters y Setters
@@ -47,8 +47,8 @@ public class Venta {
     public BigDecimal getTotal() { return total; }
     public void setTotal(BigDecimal total) { this.total = total; }
 
-    public MetodoPago getMetodoPago() { return metodoPago; }
-    public void setMetodoPago(MetodoPago metodoPago) { this.metodoPago = metodoPago; }
+    public List<PagoVenta> getPagos() { return pagos; }
+    public void setPagos(List<PagoVenta> pagos) { this.pagos = pagos; }
 
     public List<DetalleVenta> getDetalles() { return detalles; }
     public void setDetalles(List<DetalleVenta> detalles) { this.detalles = detalles; }
