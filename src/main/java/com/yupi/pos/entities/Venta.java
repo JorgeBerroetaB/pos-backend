@@ -20,8 +20,10 @@ public class Venta {
     @Column(name = "total", nullable = false)
     private BigDecimal total;
 
-    // 🔥 CORREGIDO: Eliminamos el @Column que causaba error.
-    // Ahora es simplemente la relación a la nueva tabla PagoVenta.
+    // 🔥 NUEVO: Estado de la venta para saber si fue cancelada
+    @Column(name = "estado", nullable = false)
+    private String estado = "COMPLETADA";
+
     @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL)
     private List<PagoVenta> pagos = new ArrayList<>();
 
@@ -46,6 +48,9 @@ public class Venta {
 
     public BigDecimal getTotal() { return total; }
     public void setTotal(BigDecimal total) { this.total = total; }
+
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
 
     public List<PagoVenta> getPagos() { return pagos; }
     public void setPagos(List<PagoVenta> pagos) { this.pagos = pagos; }
