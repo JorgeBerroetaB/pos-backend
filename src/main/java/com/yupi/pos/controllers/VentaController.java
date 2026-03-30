@@ -2,6 +2,7 @@ package com.yupi.pos.controllers;
 
 import com.yupi.pos.entities.DetalleVenta;
 import com.yupi.pos.entities.Venta;
+import com.yupi.pos.repositories.VentaRepository;
 import com.yupi.pos.services.VentaService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +17,13 @@ import java.util.List;
 public class VentaController {
 
     private final VentaService ventaService;
+    // 🔥 1. AGREGAMOS EL REPOSITORIO AQUÍ 🔥
+    private final VentaRepository ventaRepository;
 
-    public VentaController(VentaService ventaService) {
+    // 🔥 2. LO INYECTAMOS EN EL CONSTRUCTOR 🔥
+    public VentaController(VentaService ventaService, VentaRepository ventaRepository) {
         this.ventaService = ventaService;
+        this.ventaRepository = ventaRepository;
     }
 
     public static class PagoRequestDTO {
@@ -57,8 +62,7 @@ public class VentaController {
     }
 
     // ==========================================
-    // 🔥 NUEVA RUTA: PARA CANCELAR UNA VENTA 🔥
-    // (Ejemplo: PUT a http://localhost:8080/api/ventas/5/cancelar)
+    // 🔥 RUTA: PARA CANCELAR UNA VENTA 🔥
     // ==========================================
     @PutMapping("/{id}/cancelar")
     public ResponseEntity<?> cancelarVenta(@PathVariable Long id) {
@@ -68,5 +72,15 @@ public class VentaController {
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    // ==========================================
+    // 🔥 RUTA: PARA ELIMINAR UNA VENTA DE LA BD 🔥
+    // ==========================================
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminarVenta(@PathVariable Long id) {
+        // 🔥 3. AHORA SÍ USAMOS LA VARIABLE EN MINÚSCULA 🔥
+        ventaRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }
