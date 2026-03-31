@@ -17,10 +17,8 @@ import java.util.List;
 public class VentaController {
 
     private final VentaService ventaService;
-    // 🔥 1. AGREGAMOS EL REPOSITORIO AQUÍ 🔥
     private final VentaRepository ventaRepository;
 
-    // 🔥 2. LO INYECTAMOS EN EL CONSTRUCTOR 🔥
     public VentaController(VentaService ventaService, VentaRepository ventaRepository) {
         this.ventaService = ventaService;
         this.ventaRepository = ventaRepository;
@@ -62,7 +60,7 @@ public class VentaController {
     }
 
     // ==========================================
-    // 🔥 RUTA: PARA CANCELAR UNA VENTA 🔥
+    // 🔥 RUTA: PARA CANCELAR UNA VENTA (MÉTODO PUT) 🔥
     // ==========================================
     @PutMapping("/{id}/cancelar")
     public ResponseEntity<?> cancelarVenta(@PathVariable Long id) {
@@ -75,12 +73,16 @@ public class VentaController {
     }
 
     // ==========================================
-    // 🔥 RUTA: PARA ELIMINAR UNA VENTA DE LA BD 🔥
+    // 🔥 RUTA: PARA ELIMINAR UNA VENTA (AHORA HACE SOFT DELETE) 🔥
     // ==========================================
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarVenta(@PathVariable Long id) {
-        // 🔥 3. AHORA SÍ USAMOS LA VARIABLE EN MINÚSCULA 🔥
-        ventaRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> eliminarVenta(@PathVariable Long id) {
+        try {
+            // 🔥 AHORA LLAMAMOS AL SERVICIO PARA QUE SOLO LA TACHE Y DEVUELVA STOCK 🔥
+            ventaService.cancelarVenta(id);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }
